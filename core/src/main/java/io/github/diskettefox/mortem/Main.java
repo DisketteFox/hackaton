@@ -116,6 +116,21 @@ public class Main extends ApplicationAdapter {
     public void input() {
         float speed = 40f;
         float delta = Gdx.graphics.getDeltaTime();
+        float root2 = (float)Math.sqrt(2);
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            spiderSprite.translateX((speed * delta) / (root2 * 2));
+            spiderSprite.translateY((-speed * delta) / root2);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            spiderSprite.translateX((-speed * delta) / (root2 * 2));
+            spiderSprite.translateY((-speed * delta) / root2);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.UP) && Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            spiderSprite.translateX((-speed * delta) / (root2 * 2));
+            spiderSprite.translateY((speed * delta) / root2);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.UP) && Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            spiderSprite.translateX((speed * delta) / (root2 * 2));
+            spiderSprite.translateY((speed * delta) / root2);
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             spiderSprite.translateX(speed * delta);
@@ -125,7 +140,7 @@ public class Main extends ApplicationAdapter {
             spiderSprite.translateY(speed * delta);
         } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             spiderSprite.translateY(-speed * delta);
-        }
+        } 
 
         // Spawn a new human for testing
         if (Gdx.input.isKeyPressed(Input.Keys.F1)) {
@@ -157,8 +172,8 @@ public class Main extends ApplicationAdapter {
 
         Sprite humanSprite = new Sprite(humanTexture);
         humanSprite.setSize(humanWidth, humanHeight);
-        humanSprite.setX(MathUtils.random(0f, worldWidth - humanWidth));
-        humanSprite.setY(MathUtils.random(0f, worldHeight - (humanHeight * 5)));
+        humanSprite.setX(MathUtils.random(0f, worldWidth - 28 - humanWidth) + 14);
+        humanSprite.setY(MathUtils.random(0f, worldHeight - 28 - humanHeight) + 14);
 
         humans.add(new Human(humanSprite));
     }
