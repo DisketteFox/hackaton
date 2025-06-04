@@ -2,7 +2,6 @@ package io.github.diskettefox.mortem;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -23,6 +23,12 @@ public class Main extends ApplicationAdapter {
     private FitViewport viewport;
 
     private Texture backgroundTest;
+
+    // Controller lock
+    private boolean lockUP = false;
+    private boolean lockDOWN = false;
+    private boolean lockLEFT = false;
+    private boolean lockRIGHT = false;
 
     // Human variables
     private Texture humanTexture;
@@ -38,32 +44,35 @@ public class Main extends ApplicationAdapter {
     private int spiderFrame = 0;
 
     private Rectangle spiderRectangle;
-    private Rectangle humanRectangle;
 
     private Music music;
     private Sound mortemSound;
 
-    // Human class to track state
+    // Human class to track state and hitbox
     private static class Human {
         Sprite sprite;
         boolean touched;
+        Rectangle rectangle;
 
         Human(Sprite sprite) {
             this.sprite = sprite;
             this.touched = false;
+            this.rectangle = new Rectangle(sprite.getX() + 5, sprite.getY(), 7, sprite.getHeight());
+        }
+
+        void updateRectangle() {
+            this.rectangle.set(sprite.getX() + 5, sprite.getY(), 7, sprite.getHeight());
         }
     }
 
     @Override
     public void create() {
-
         spiderSprite = new Sprite();
         spiderSprite.setSize(16, 16);
         spiderSprite.setX(128);
 
         // Spider animation
         spiderSheet = new Texture("characters/spider/spider.png");
-        // spiderSheet = new Texture("characters/spider/arana.png");
         TextureRegion[][] tmp = TextureRegion.split(spiderSheet,
             spiderSheet.getWidth() / FRAME_COLS,
             spiderSheet.getHeight() / FRAME_ROWS);
@@ -71,11 +80,7 @@ public class Main extends ApplicationAdapter {
         walkFrames[0] = new TextureRegion(spiderSheet, 0, 0, 16, 16);
         walkFrames[1] = new TextureRegion(spiderSheet, 16, 0, 16, 16);
         walkFrames[2] = new TextureRegion(spiderSheet, 32, 0, 16, 16);
-        // walkFrames[0] = new TextureRegion(spiderSheet, 0, 0, 64, 64);
-        // walkFrames[1] = new TextureRegion(spiderSheet, 64, 0, 64, 64);
-        // walkFrames[2] = new TextureRegion(spiderSheet, 128, 0, 64, 64);
         walkAnimation = new Animation<TextureRegion>(1f, walkFrames);
-
 
         humanTexture = new Texture("characters/human/human-1.png");
         humanTouchedTexture = new Texture("characters/human/human-d.png");
@@ -84,7 +89,6 @@ public class Main extends ApplicationAdapter {
         backgroundTest = new Texture("stages/test/test2.png");
 
         spiderRectangle = new Rectangle();
-        humanRectangle = new Rectangle();
 
         mortemSound = Gdx.audio.newSound(Gdx.files.internal("assets/sounds/mortem.mp3"));
 
@@ -110,6 +114,8 @@ public class Main extends ApplicationAdapter {
         float spiderWidth = spiderSprite.getWidth();
         float spiderHeight = spiderSprite.getHeight();
 
+        spiderHitbox();
+
         spiderSprite.setX(MathUtils.clamp(spiderSprite.getX(), 0, worldWidth - spiderWidth));
 
         float delta = Gdx.graphics.getDeltaTime();
@@ -118,14 +124,13 @@ public class Main extends ApplicationAdapter {
         for (int i = humans.size - 1; i >= 0; i--) {
             Human human = humans.get(i);
             Sprite dropSprite = human.sprite;
-            float dropWidth = dropSprite.getWidth();
-            float dropHeight = dropSprite.getHeight();
 
-            humanRectangle.set(dropSprite.getX() + 5, dropSprite.getY(), 7, dropHeight);
+            // Update this human's rectangle position
+            human.updateRectangle();
 
-            if (dropSprite.getY() < -dropHeight) {
+            if (dropSprite.getY() < -dropSprite.getHeight()) {
                 humans.removeIndex(i);
-            } else if (!human.touched && spiderRectangle.overlaps(humanRectangle)) {
+            } else if (!human.touched && spiderRectangle.overlaps(human.rectangle)) {
                 dropSprite.setTexture(humanTouchedTexture);
                 mortemSound.play();
                 human.touched = true;
@@ -138,32 +143,32 @@ public class Main extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
         float root2 = (float)Math.sqrt(2);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Keys.DOWN) && Gdx.input.isKeyPressed(Keys.RIGHT) && !lockDOWN && !lockRIGHT) {
             spiderSprite.translateX((speed * delta) / (root2 * 2));
             spiderSprite.translateY((-speed * delta) / root2);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        } else if (Gdx.input.isKeyPressed(Keys.DOWN) && Gdx.input.isKeyPressed(Keys.LEFT) && !lockDOWN && !lockLEFT) {
             spiderSprite.translateX((-speed * delta) / (root2 * 2));
             spiderSprite.translateY((-speed * delta) / root2);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.UP) && Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        } else if (Gdx.input.isKeyPressed(Keys.UP) && Gdx.input.isKeyPressed(Keys.LEFT) && !lockUP && !lockLEFT) {
             spiderSprite.translateX((-speed * delta) / (root2 * 2));
             spiderSprite.translateY((speed * delta) / root2);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.UP) && Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        } else if (Gdx.input.isKeyPressed(Keys.UP) && Gdx.input.isKeyPressed(Keys.RIGHT) && !lockUP && !lockRIGHT) {
             spiderSprite.translateX((speed * delta) / (root2 * 2));
             spiderSprite.translateY((speed * delta) / root2);
             moveSpider();
-        }else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        } else if (Gdx.input.isKeyPressed(Keys.RIGHT) && !lockRIGHT) {
             spiderSprite.translateX(speed * delta);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        } else if (Gdx.input.isKeyPressed(Keys.LEFT) && !lockLEFT) {
             spiderSprite.translateX(-speed * delta);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        } else if (Gdx.input.isKeyPressed(Keys.UP) && !lockUP) {
             spiderSprite.translateY(speed * delta);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        } else if (Gdx.input.isKeyPressed(Keys.DOWN) && !lockDOWN) {
             spiderSprite.translateY(-speed * delta);
             moveSpider();
         } else {
@@ -171,19 +176,32 @@ public class Main extends ApplicationAdapter {
         }
 
         // Spawn a new human for testing
-        if (Gdx.input.isKeyPressed(Input.Keys.F1)) {
+        if (Gdx.input.isKeyPressed(Keys.F1)) {
             createHuman();
         }
     }
 
     public void moveSpider() {
-        spiderFrame += 1;
-        if (spiderFrame == 5) {
-            spiderMovement += 1;
-            if (spiderMovement > 2) {
-                spiderMovement = 0;
+        int direction = 0;
+        if (direction == 0) {
+            spiderFrame += 1;
+            if (spiderFrame == 5) {
+                spiderMovement += 1;
+                if (spiderMovement > 2) {
+                    direction = 1;
+                }
+                spiderFrame = 0;
             }
-            spiderFrame = 0;
+        }
+        if (direction == 1) {
+            spiderFrame += 1;
+            if (spiderFrame == 5) {
+                spiderMovement -= 1;
+                if (spiderMovement > 2) {
+                    direction = 0;
+                }
+                spiderFrame = 0;
+            }
         }
     }
 
@@ -197,7 +215,6 @@ public class Main extends ApplicationAdapter {
         spriteBatch.begin();
 
         spriteBatch.draw(backgroundTest, 0, 0, 256, 144);
-        // spiderSprite.draw(spriteBatch);
         spriteBatch.draw(currentFrame, spiderSprite.getX(), spiderSprite.getY(), 16, 16);
         for (Human human : humans) {
             human.sprite.draw(spriteBatch);
@@ -212,7 +229,7 @@ public class Main extends ApplicationAdapter {
         float humanWidth = 16;
         float humanHeight = 16;
         float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight(); // fixed typo
+        float worldHeight = viewport.getWorldHeight();
 
         Sprite humanSprite = new Sprite(humanTexture);
         humanSprite.setSize(humanWidth, humanHeight);
@@ -220,6 +237,32 @@ public class Main extends ApplicationAdapter {
         humanSprite.setY(MathUtils.random(0f, worldHeight - 28 - humanHeight) + 14);
 
         humans.add(new Human(humanSprite));
+    }
+
+    public void spiderHitbox() {
+        // Reset locks before checking collisions
+        lockDOWN = false;
+        lockLEFT = false;
+        lockUP = false;
+        lockRIGHT = false;
+
+        for (Human human : humans) {
+            if (Intersector.overlaps(spiderRectangle, human.rectangle)) {
+                if (Math.abs(human.rectangle.getX() - spiderRectangle.getX()) > Math.abs(human.rectangle.getY() - spiderRectangle.getY())) {
+                    if (human.rectangle.getX() > spiderRectangle.getX()) {
+                        lockRIGHT = true;
+                    } else {
+                        lockLEFT = true;
+                    }
+                } else {
+                    if (human.rectangle.getY() > spiderRectangle.getY()) {
+                        lockUP = true;
+                    } else {
+                        lockDOWN = true;
+                    }
+                }
+            }
+        }
     }
 
     @Override
