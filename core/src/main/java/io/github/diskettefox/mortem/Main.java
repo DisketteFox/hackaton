@@ -4,12 +4,9 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,32 +18,23 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class Main extends ApplicationAdapter {
     private SpriteBatch spriteBatch;
     private FitViewport viewport;
+    private boolean isPixel = false;
 
-    private Texture backgroundTest;
+    private Texture backgroundTest, humanTexture, humanTouchedTexture, spiderSheet;
+    private Rectangle wall1 = new Rectangle(), wall2 = new Rectangle(), wall3 = new Rectangle(), wall4 = new Rectangle();
+    private Rectangle spiderRectangle = new Rectangle();
+    private Array<Human> humans = new Array<>();
 
-    // Controller lock
-    private boolean lockUP = false;
-    private boolean lockDOWN = false;
-    private boolean lockLEFT = false;
-    private boolean lockRIGHT = false;
-
-    // Human variables
-    private Texture humanTexture;
-    private Texture humanTouchedTexture;
-    private Array<Human> humans;
-
-    // Spider variables
-    private Texture spiderSheet;
-    private Sprite spiderSprite;
+    private Sprite spiderSprite = new Sprite();
     private Animation<TextureRegion> walkAnimation;
     private static final int FRAME_COLS = 3, FRAME_ROWS = 1;
-    private int spiderMovement = 0;
-    private int spiderFrame = 0;
-
-    private Rectangle spiderRectangle;
+    private int spiderMovement = 0, spiderFrame = 0;
 
     private Music music;
     private Sound mortemSound;
+
+    // Controller lock
+    private boolean lockUP = false, lockDOWN = false, lockLEFT = false, lockRIGHT = false;
 
     // Human class to track state and hitbox
     private static class Human {
@@ -67,31 +55,29 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        spiderSprite = new Sprite();
         spiderSprite.setSize(16, 16);
-        spiderSprite.setX(128);
+        spiderSprite.setPosition(128, 32);
 
         // Spider animation
-        spiderSheet = new Texture("characters/spider/spider.png");
-        TextureRegion[][] tmp = TextureRegion.split(spiderSheet,
-            spiderSheet.getWidth() / FRAME_COLS,
-            spiderSheet.getHeight() / FRAME_ROWS);
-        TextureRegion[] walkFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
-        walkFrames[0] = new TextureRegion(spiderSheet, 0, 0, 16, 16);
-        walkFrames[1] = new TextureRegion(spiderSheet, 16, 0, 16, 16);
-        walkFrames[2] = new TextureRegion(spiderSheet, 32, 0, 16, 16);
-        walkAnimation = new Animation<TextureRegion>(1f, walkFrames);
+        spiderSheet = new Texture("characters/spider/arana.png");
+        // spiderSheet = new Texture("characters/spider/spider.png");
+        TextureRegion[] walkFrames = {
+            new TextureRegion(spiderSheet, 0, 0, 64, 64),
+            new TextureRegion(spiderSheet, 64, 0, 64, 64),
+            new TextureRegion(spiderSheet, 128, 0, 64, 64)
+            // new TextureRegion(spiderSheet, 0, 0, 16, 16);
+            // new TextureRegion(spiderSheet, 16, 0, 16, 16);
+            // new TextureRegion(spiderSheet, 32, 0, 16, 16);
+        };
+        walkAnimation = new Animation<>(1f, walkFrames);
 
         humanTexture = new Texture("characters/human/human-1.png");
         humanTouchedTexture = new Texture("characters/human/human-d.png");
-        humans = new Array<>();
 
         backgroundTest = new Texture("stages/test/test2.png");
-
-        spiderRectangle = new Rectangle();
+        // backgroundTest = new Texture("stages/dessert/dessert.png");
 
         mortemSound = Gdx.audio.newSound(Gdx.files.internal("assets/sounds/mortem.mp3"));
-
         music = Gdx.audio.newMusic(Gdx.files.internal("assets/music/song.mp3"));
         music.setLooping(true);
         music.setVolume(.8f);
@@ -109,29 +95,22 @@ public class Main extends ApplicationAdapter {
     }
 
     private void logic() {
-        float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight();
-        float spiderWidth = spiderSprite.getWidth();
-        float spiderHeight = spiderSprite.getHeight();
+        collisions();
 
-        spiderHitbox();
-
-        spiderSprite.setX(MathUtils.clamp(spiderSprite.getX(), 0, worldWidth - spiderWidth));
-
-        float delta = Gdx.graphics.getDeltaTime();
-        spiderRectangle.set(spiderSprite.getX(), spiderSprite.getY(), spiderWidth, spiderHeight);
+        spiderRectangle.set(spiderSprite.getX(), spiderSprite.getY(), spiderSprite.getWidth(), spiderSprite.getHeight());
+        wall1.set(0, 0, 14, 144);
+        wall2.set(0, 130, 256, 14);
+        wall3.set(242, 0, 14, 144);
+        wall4.set(0, 0, 256, 14);
 
         for (int i = humans.size - 1; i >= 0; i--) {
             Human human = humans.get(i);
-            Sprite dropSprite = human.sprite;
-
-            // Update this human's rectangle position
             human.updateRectangle();
 
-            if (dropSprite.getY() < -dropSprite.getHeight()) {
+            if (human.sprite.getY() < -human.sprite.getHeight()) {
                 humans.removeIndex(i);
             } else if (!human.touched && spiderRectangle.overlaps(human.rectangle)) {
-                dropSprite.setTexture(humanTouchedTexture);
+                human.sprite.setTexture(humanTouchedTexture);
                 mortemSound.play();
                 human.touched = true;
             }
@@ -139,36 +118,28 @@ public class Main extends ApplicationAdapter {
     }
 
     public void input() {
-        float speed = 40f;
-        float delta = Gdx.graphics.getDeltaTime();
-        float root2 = (float)Math.sqrt(2);
+        float speed = 40f, delta = Gdx.graphics.getDeltaTime(), root2 = (float)Math.sqrt(2);
 
-        if (Gdx.input.isKeyPressed(Keys.DOWN) && Gdx.input.isKeyPressed(Keys.RIGHT) && !lockDOWN && !lockRIGHT) {
-            spiderSprite.translateX((speed * delta) / (root2 * 2));
-            spiderSprite.translateY((-speed * delta) / root2);
+        boolean up = Gdx.input.isKeyPressed(Keys.UP) && !lockUP;
+        boolean down = Gdx.input.isKeyPressed(Keys.DOWN) && !lockDOWN;
+        boolean left = Gdx.input.isKeyPressed(Keys.LEFT) && !lockLEFT;
+        boolean right = Gdx.input.isKeyPressed(Keys.RIGHT) && !lockRIGHT;
+
+        if (up && right || down && right || up && left || down && left) {
+            float dx = (right ? 1 : (left ? -1 : 0)) * speed * delta / (root2 * 2);
+            float dy = (up ? 1 : (down ? -1 : 0)) * speed * delta / root2;
+            spiderSprite.translate(dx, dy);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.DOWN) && Gdx.input.isKeyPressed(Keys.LEFT) && !lockDOWN && !lockLEFT) {
-            spiderSprite.translateX((-speed * delta) / (root2 * 2));
-            spiderSprite.translateY((-speed * delta) / root2);
-            moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.UP) && Gdx.input.isKeyPressed(Keys.LEFT) && !lockUP && !lockLEFT) {
-            spiderSprite.translateX((-speed * delta) / (root2 * 2));
-            spiderSprite.translateY((speed * delta) / root2);
-            moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.UP) && Gdx.input.isKeyPressed(Keys.RIGHT) && !lockUP && !lockRIGHT) {
-            spiderSprite.translateX((speed * delta) / (root2 * 2));
-            spiderSprite.translateY((speed * delta) / root2);
-            moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.RIGHT) && !lockRIGHT) {
+        } else if (right) {
             spiderSprite.translateX(speed * delta);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.LEFT) && !lockLEFT) {
+        } else if (left) {
             spiderSprite.translateX(-speed * delta);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.UP) && !lockUP) {
+        } else if (up) {
             spiderSprite.translateY(speed * delta);
             moveSpider();
-        } else if (Gdx.input.isKeyPressed(Keys.DOWN) && !lockDOWN) {
+        } else if (down) {
             spiderSprite.translateY(-speed * delta);
             moveSpider();
         } else {
@@ -178,28 +149,21 @@ public class Main extends ApplicationAdapter {
         // Spawn a new human for testing
         if (Gdx.input.isKeyPressed(Keys.F1)) {
             createHuman();
+        } else if (Gdx.input.isKeyJustPressed(Keys.P)) {
+            isPixel = !isPixel;
         }
     }
 
     public void moveSpider() {
         int direction = 0;
         if (direction == 0) {
-            spiderFrame += 1;
-            if (spiderFrame == 5) {
-                spiderMovement += 1;
-                if (spiderMovement > 2) {
-                    direction = 1;
-                }
+            if (++spiderFrame == 5) {
+                if (++spiderMovement > 2) direction = 1;
                 spiderFrame = 0;
             }
-        }
-        if (direction == 1) {
-            spiderFrame += 1;
-            if (spiderFrame == 5) {
-                spiderMovement -= 1;
-                if (spiderMovement > 2) {
-                    direction = 0;
-                }
+        } else {
+            if (++spiderFrame == 5) {
+                if (--spiderMovement < 0) direction = 0;
                 spiderFrame = 0;
             }
         }
@@ -213,56 +177,45 @@ public class Main extends ApplicationAdapter {
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
 
         spriteBatch.begin();
-
         spriteBatch.draw(backgroundTest, 0, 0, 256, 144);
         spriteBatch.draw(currentFrame, spiderSprite.getX(), spiderSprite.getY(), 16, 16);
-        for (Human human : humans) {
-            human.sprite.draw(spriteBatch);
-        }
-
+        for (Human human : humans) human.sprite.draw(spriteBatch);
         spriteBatch.end();
     }
 
     private void createHuman() {
         System.out.println("Human spawned");
 
-        float humanWidth = 16;
-        float humanHeight = 16;
-        float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight();
-
         Sprite humanSprite = new Sprite(humanTexture);
-        humanSprite.setSize(humanWidth, humanHeight);
-        humanSprite.setX(MathUtils.random(0f, worldWidth - 28 - humanWidth) + 14);
-        humanSprite.setY(MathUtils.random(0f, worldHeight - 28 - humanHeight) + 14);
+        humanSprite.setSize(16, 16);
+        float x = MathUtils.random(0f, viewport.getWorldWidth() - 28 - 16) + 14;
+        float y = MathUtils.random(0f, viewport.getWorldHeight() - 28 - 16) + 14;
+        humanSprite.setPosition(x, y);
 
         humans.add(new Human(humanSprite));
     }
 
-    public void spiderHitbox() {
+    public void collisions() {
         // Reset locks before checking collisions
-        lockDOWN = false;
-        lockLEFT = false;
-        lockUP = false;
-        lockRIGHT = false;
+        lockDOWN = lockLEFT = lockUP = lockRIGHT = false;
 
         for (Human human : humans) {
             if (Intersector.overlaps(spiderRectangle, human.rectangle)) {
-                if (Math.abs(human.rectangle.getX() - spiderRectangle.getX()) > Math.abs(human.rectangle.getY() - spiderRectangle.getY())) {
-                    if (human.rectangle.getX() > spiderRectangle.getX()) {
-                        lockRIGHT = true;
-                    } else {
-                        lockLEFT = true;
-                    }
+                boolean xGreater = Math.abs(human.rectangle.x - spiderRectangle.x) > Math.abs(human.rectangle.y - spiderRectangle.y);
+                if (xGreater) {
+                    if (human.rectangle.x > spiderRectangle.x) lockRIGHT = true;
+                    else lockLEFT = true;
                 } else {
-                    if (human.rectangle.getY() > spiderRectangle.getY()) {
-                        lockUP = true;
-                    } else {
-                        lockDOWN = true;
-                    }
+                    if (human.rectangle.y > spiderRectangle.y) lockUP = true;
+                    else lockDOWN = true;
                 }
             }
         }
+
+        if (Intersector.overlaps(spiderRectangle, wall1)) lockLEFT = true;
+        if (Intersector.overlaps(spiderRectangle, wall2)) lockUP = true;
+        if (Intersector.overlaps(spiderRectangle, wall3)) lockRIGHT = true;
+        if (Intersector.overlaps(spiderRectangle, wall4)) lockDOWN = true;
     }
 
     @Override
