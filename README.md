@@ -12,16 +12,16 @@ This project was generated with a template including simple application launcher
 - [x] NPCs (Hecho)
 - [x] Ataque a los NPCs (Hecho)
 - [x] Hitbox paredes (Hecho)
-- \(En proceso) Mejora de Código
-- Escenarios
-- Cámara
-- Puntuación
-- Muerte
-- IA de los NPCs
-- Música
-- Fin
-- Créditos
-- Pantalla de inicio
+- [ ] \(En proceso) Mejora de Código
+- [ ] Escenarios
+- [ ] Cámara
+- [ ] Puntuación
+- [ ] Muerte
+- [ ] IA de los NPCs
+- [ ] Música
+- [ ] Fin
+- [ ] Créditos
+- [ ] Pantalla de inicio
 
 # Niveles
 
