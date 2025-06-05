@@ -4,7 +4,7 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 
 This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
 
-# Tareas
+# Tareas (37,5%)
 
 - [x] Escenario (Hecho)
 - [x] Movimientos (Hecho)
@@ -12,18 +12,27 @@ This project was generated with a template including simple application launcher
 - [x] NPCs (Hecho)
 - [x] Ataque a los NPCs (Hecho)
 - [x] Hitbox paredes (Hecho)
-- [ ] \(En proceso) Mejora de Código
-- [ ] Escenarios
+- [ ] \(En proceso) Escenarios
+- [ ] Mejora de Código
 - [ ] Cámara
 - [ ] Puntuación
 - [ ] Muerte
 - [ ] IA de los NPCs
+- [ ] Pantalla de inicio
 - [ ] Música
 - [ ] Fin
 - [ ] Créditos
-- [ ] Pantalla de inicio
+
+# Mecánicas
+
+- [x] Matar personas
+- [ ] \(En proceso) Cambiar de nivel
+- [ ] Cambio de modo
+- [ ] Muerte
 
 # Niveles
+
+- [ ] \(En proceso) Desierto
 
 ## Tipos de niveles
 
@@ -31,3 +40,9 @@ This project was generated with a template including simple application launcher
   - Con borde
   - Sin borde
 - Dinámicos
+
+# Extras
+
+- [ ] Transiciones
+- [ ] Soporte para mando
+- [ ] Créditos
