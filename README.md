@@ -6,13 +6,13 @@ This project was generated with a template including simple application launcher
 
 # Tareas
 
-- Escenario (Hecho)
-- Movimientos (Hecho)
-- Sprites (Hecho)
-- NPCs (Hecho)
-- Ataque a los NPCs (Hecho)
-- Hitbox paredes (Hecho)
-- Mejora de Código (En proceso)
+- [x] Escenario (Hecho)
+- [x] Movimientos (Hecho)
+- [x] Sprites (Hecho)
+- [x] NPCs (Hecho)
+- [x] Ataque a los NPCs (Hecho)
+- [x] Hitbox paredes (Hecho)
+- \(En proceso) Mejora de Código
 - Escenarios
 - Cámara
 - Puntuación
