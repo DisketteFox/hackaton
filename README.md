@@ -21,7 +21,6 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 
 | Button | Action |
 |-------------------------------|----------------------------------------------------------------|
-| Move mouse | Look around |
 | Up, Down, Left, Right | Move |
 | F1 | Generate humans |
 | 1, 2, 3, 4, 5, 6... | Move between maps |
@@ -50,29 +49,34 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 
 # Mechanics
 
-- [x] Matar personas
-- [ ] \(En proceso) Cambiar de nivel
-- [ ] Cambio de modo
-- [ ] Muerte
+- [x] Kill people
+- [ ] \(In process) Change level
+- [ ] Gamemode change
+- [ ] Death
 
 # Levels
 
-- [ ] Oficina
-- [ ] \(En proceso) Desierto
+- [x] Test
+
+![](assets/stages/test/test1.png)
+
+- [ ] Office
+- [ ] \(In process) Dessert
 
 ![](assets/stages/dessert/dessert.png)
 
-- [ ] \(Opcional) Casas
+- [ ] \(Optional) Houses
 
 ## Tipos de niveles
 
-- Estáticos
-  - Con borde
-  - Sin borde
-- Dinámicos
+- Static
+  - With border
+  - Without border
+- Dynamic
 
 # Extras
 
-- [ ] Transiciones
-- [ ] Soporte para mando
-- [ ] Créditos
+- [ ] Transitions
+- [ ] Mechanics with gamemode change
+- [ ] Controller support
+- [ ] Credits
