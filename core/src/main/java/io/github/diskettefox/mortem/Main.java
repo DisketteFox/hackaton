@@ -245,7 +245,7 @@ public class Main extends ApplicationAdapter {
                     }
                 }
             }
-        } else if (currentMap == 1) {
+        } else if (currentMap == 2) {
             for (Human human : humanslv2) {
                 if (Intersector.overlaps(spiderRectangle, human.rectangle)) {
                     boolean xGreater = Math.abs(human.rectangle.x - spiderRectangle.x) > Math.abs(human.rectangle.y - spiderRectangle.y);
