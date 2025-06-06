@@ -21,8 +21,9 @@ public class Main extends ApplicationAdapter {
     private boolean isPixel = false;
     private int currentMap = 1;
 
-    private Texture background1, background2, humanTexture, humanTouchedTexture, spiderSheet;
+    private Texture background1, background2, background3, background4, humanTexture, humanTouchedTexture, spiderSheet;
     private Rectangle wall1 = new Rectangle(), wall2 = new Rectangle(), wall3 = new Rectangle(), wall4 = new Rectangle();
+    private Rectangle gate1 = new Rectangle(), gate2 = new Rectangle(), gate3 = new Rectangle(), gate4 = new Rectangle();
     private Rectangle spiderRectangle = new Rectangle();
     private Array<Human> humans = new Array<>();
 
@@ -69,15 +70,15 @@ public class Main extends ApplicationAdapter {
         spiderSprite.setPosition(128, 32);
 
         // Spider animation
-        spiderSheet = new Texture("characters/spider/arana.png");
-        // spiderSheet = new Texture("characters/spider/spider.png");
+        // spiderSheet = new Texture("characters/spider/arana.png");
+        spiderSheet = new Texture("characters/spider/spider.png");
         TextureRegion[] walkFrames = {
-            new TextureRegion(spiderSheet, 0, 0, 64, 64),
-            new TextureRegion(spiderSheet, 64, 0, 64, 64),
-            new TextureRegion(spiderSheet, 128, 0, 64, 64)
-            // new TextureRegion(spiderSheet, 0, 0, 16, 16);
-            // new TextureRegion(spiderSheet, 16, 0, 16, 16);
-            // new TextureRegion(spiderSheet, 32, 0, 16, 16);
+            // new TextureRegion(spiderSheet, 0, 0, 64, 64),
+            // new TextureRegion(spiderSheet, 64, 0, 64, 64),
+            // new TextureRegion(spiderSheet, 128, 0, 64, 64)
+            new TextureRegion(spiderSheet, 0, 0, 16, 16),
+            new TextureRegion(spiderSheet, 16, 0, 16, 16),
+            new TextureRegion(spiderSheet, 32, 0, 16, 16)
         };
         walkAnimation = new Animation<>(1f, walkFrames);
 
@@ -86,6 +87,8 @@ public class Main extends ApplicationAdapter {
 
         background1 = new Texture("stages/test/test1.png");
         background2 = new Texture("stages/test/test2.png");
+        background3 = new Texture("stages/test/test3.png");
+        background4 = new Texture("stages/test/test4.png");
 
         mortemSound = Gdx.audio.newSound(Gdx.files.internal("assets/sounds/mortem.mp3"));
         music = Gdx.audio.newMusic(Gdx.files.internal("assets/music/song.mp3"));
@@ -113,6 +116,36 @@ public class Main extends ApplicationAdapter {
         wall3.set(242, 0, 14, 144);
         wall4.set(0, 0, 256, 14);
 
+        if (currentMap == 1) {
+            gate1.set(120, 109, 15, 16);
+            if (Intersector.overlaps(spiderRectangle, gate1)) {
+                changeMap(2);
+            }
+        } else if (currentMap == 2) {
+            gate1.set(120, 0, 15, 14);
+            gate2.set(242, 58, 14, 15);
+            gate3.set(120, 109, 15, 16);
+            if (Intersector.overlaps(spiderRectangle, gate1)) {
+                changeMap(1);
+            }
+            if (Intersector.overlaps(spiderRectangle, gate2)) {
+                changeMap(4);
+            }
+            if (Intersector.overlaps(spiderRectangle, gate3)) {
+                changeMap(3);
+            }
+        } else if (currentMap == 3) {
+            gate1.set(120, 0, 15, 14);
+            if (Intersector.overlaps(spiderRectangle, gate1)) {
+                changeMap(2);
+            }
+        } else if (currentMap == 4) {
+            gate1.set(0, 58, 14, 15);
+            if (Intersector.overlaps(spiderRectangle, gate1)) {
+                changeMap(2);
+            }
+        }
+
         for (Human human : humans) {
             int i = 0;
             if (human.getMap() == currentMap) {
@@ -126,19 +159,6 @@ public class Main extends ApplicationAdapter {
                 }
             }
             i++;
-        }
-
-        for (int i = humans.size - 1; i >= 0; i--) {
-            Human human = humans.get(i);
-            human.updateRectangle();
-
-            if (human.sprite.getY() < -human.sprite.getHeight()) {
-                humans.removeIndex(i);
-            } else if (!human.touched && spiderRectangle.overlaps(human.rectangle)) {
-                human.sprite.setTexture(humanTouchedTexture);
-                mortemSound.play();
-                human.touched = true;
-            }
         }
     }
 
@@ -203,6 +223,10 @@ public class Main extends ApplicationAdapter {
             spriteBatch.draw(background1, 0, 0, 256, 144);
         } else if (currentMap == 2) {
             spriteBatch.draw(background2, 0, 0, 256, 144);
+        } else if (currentMap == 3) {
+            spriteBatch.draw(background3, 0, 0, 256, 144);
+        } else if (currentMap == 4) {
+            spriteBatch.draw(background4, 0, 0, 256, 144);
         }
         spriteBatch.draw(currentFrame, spiderSprite.getX(), spiderSprite.getY(), 16, 16);
         for (Human human : humans){
@@ -217,7 +241,7 @@ public class Main extends ApplicationAdapter {
         Sprite humanSprite = new Sprite(humanTexture);
         humanSprite.setSize(16, 16);
         float x = MathUtils.random(0f, viewport.getWorldWidth() - 28 - 16) + 14;
-        float y = MathUtils.random(0f, viewport.getWorldHeight() - 28 - 16) + 14;
+        float y = MathUtils.random(0f, viewport.getWorldHeight() - 28 - 21 - 16) + 14;
         humanSprite.setPosition(x, y);
         int map = currentMap;
 
@@ -248,13 +272,23 @@ public class Main extends ApplicationAdapter {
         if (Intersector.overlaps(spiderRectangle, wall4)) lockDOWN = true;
     }
 
-    public void changeMap(int level) {
-        if (level == 1) {
-            spiderSprite.setPosition(120, 100);
-        } else if (level == 2) {
-            spiderSprite.setPosition(120, 13);
+    public void changeMap(int map) {
+        if (map == 1) {
+            spiderSprite.setPosition(120, 90);
+        } else if (map == 2) {
+            if (currentMap == 1) {
+                spiderSprite.setPosition(120, 20);
+            } if (currentMap == 3) {
+                spiderSprite.setPosition(120, 90);
+            } if (currentMap == 4) {
+                spiderSprite.setPosition(220, 71);
+            }
+        } else if (map == 3) {
+            spiderSprite.setPosition(120, 20);
+        } else if (map == 4) {
+            spiderSprite.setPosition(20, 71);
         }
-        currentMap = level;
+        currentMap = map;
     }
 
     @Override

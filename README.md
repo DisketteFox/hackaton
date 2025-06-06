@@ -19,11 +19,11 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 > [!WARNING]
 > Controls are subject to change.
 
-| Button | Action |
-|-------------------------------|----------------------------------------------------------------|
-| Up, Down, Left, Right | Move |
-| F1 | Generate humans |
-| 1, 2, 3, 4, 5, 6... | Move between maps |
+| Button                | Action            |
+|-----------------------|-------------------|
+| Up, Down, Left, Right | Move              |
+| F1                    | Generate humans   |
+| 1, 2, 3, 4, 5, 6...   | Move between maps |
 
 # Tasks
 
@@ -39,7 +39,7 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 - [x] Walls hitbox
 - [x] Code improvements
 - [ ] \(In process) Stages
-  - [ ] \(In process) Teleport
+  - [x] \(In process) Teleport
   - [ ] Dynamic maps
 - [ ] Code separation
 - [ ] [Camera](https://github.com/raeleus/viewports-sample-project?tab=readme-ov-file#camera-position)
@@ -54,7 +54,7 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 # Mechanics
 
 - [x] Kill people
-- [ ] \(In process) Change level
+- [x] Change level
 - [ ] Gamemode change
 - [ ] Death
 
@@ -64,12 +64,12 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 
 ![](assets/stages/test/test1.png)
 
-- [ ] Office
-- [ ] \(In process) Desert
+- [ ] \(In process) Office
+- [x] Desert
 
 ![](assets/stages/desert/desert.png)
 
-- [ ] Beach
+- [ ] \(In process) Beach
 - [ ] \(Optional) Houses
 
 ## Tipos de niveles
@@ -80,9 +80,9 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 - Dynamic
 
 # Characters
-- [ ] Spider
-  - [ ] Old
-  - [ ] Modern
+- [x] Spider
+  - [x] Old
+  - [x] Modern
   
 - [ ] Humans
   - [x] Old
