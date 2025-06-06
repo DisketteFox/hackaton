@@ -242,7 +242,6 @@ public class Main extends ApplicationAdapter {
             }
         }
 
-
         if (Intersector.overlaps(spiderRectangle, wall1)) lockLEFT = true;
         if (Intersector.overlaps(spiderRectangle, wall2)) lockUP = true;
         if (Intersector.overlaps(spiderRectangle, wall3)) lockRIGHT = true;

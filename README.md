@@ -30,22 +30,26 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 > [!TIP]
 > Keep the table updated.
 
-- [x] Escenario (Hecho)
-- [x] Movimientos (Hecho)
-- [x] Sprites (Hecho)
-- [x] NPCs (Hecho)
-- [x] Ataque a los NPCs (Hecho)
-- [x] Hitbox paredes (Hecho)
-- [ ] \(En proceso) Escenarios
-- [ ] Mejora de Código
-- [ ] [Cámara](https://github.com/raeleus/viewports-sample-project?tab=readme-ov-file#camera-position)
-- [ ] Puntuación
-- [ ] Muerte
-- [ ] [IA de los NPCs](https://github.com/libgdx/gdx-ai/wiki)
-- [ ] Pantalla de inicio
-- [ ] Música
-- [ ] Fin
-- [ ] Créditos
+- [x] Stage
+- [x] Moveset
+- [x] Sprites
+- [x] NPCs
+- [x] Attack to NPCs
+- [x] Character hitbox
+- [x] Walls hitbox
+- [x] Code improvements
+- [ ] \(In process) Stages
+  - [ ] \(In process) Teleport
+  - [ ] Dynamic maps
+- [ ] Code separation
+- [ ] [Camera](https://github.com/raeleus/viewports-sample-project?tab=readme-ov-file#camera-position)
+- [ ] Score
+- [ ] Death
+- [ ] [NPCs AI](https://github.com/libgdx/gdx-ai/wiki)
+- [ ] Start screen
+- [ ] Music
+- [ ] End
+- [ ] Credits
 
 # Mechanics
 
@@ -61,10 +65,11 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 ![](assets/stages/test/test1.png)
 
 - [ ] Office
-- [ ] \(In process) Dessert
+- [ ] \(In process) Desert
 
-![](assets/stages/dessert/dessert.png)
+![](assets/stages/desert/desert.png)
 
+- [ ] Beach
 - [ ] \(Optional) Houses
 
 ## Tipos de niveles
@@ -73,6 +78,15 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
   - With border
   - Without border
 - Dynamic
+
+# Characters
+- [ ] Spider
+  - [ ] Old
+  - [ ] Modern
+  
+- [ ] Humans
+  - [x] Old
+  - [ ] Modern
 
 # Extras
 
