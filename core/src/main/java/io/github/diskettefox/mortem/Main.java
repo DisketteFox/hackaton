@@ -24,8 +24,7 @@ public class Main extends ApplicationAdapter {
     private Texture background1, background2, humanTexture, humanTouchedTexture, spiderSheet;
     private Rectangle wall1 = new Rectangle(), wall2 = new Rectangle(), wall3 = new Rectangle(), wall4 = new Rectangle();
     private Rectangle spiderRectangle = new Rectangle();
-    private Array<Human> humanslv1 = new Array<>();
-    private Array<Human> humanslv2 = new Array<>();
+    private Array<Human> humans = new Array<>();
 
     private Sprite spiderSprite = new Sprite();
     private Animation<TextureRegion> walkAnimation;
@@ -43,6 +42,15 @@ public class Main extends ApplicationAdapter {
         Sprite sprite;
         boolean touched;
         Rectangle rectangle;
+        int map;
+
+        public void setMap(int map) {
+            this.map = map;
+        }
+
+        public int getMap() {
+            return map;
+        }
 
         Human(Sprite sprite) {
             this.sprite = sprite;
@@ -105,31 +113,31 @@ public class Main extends ApplicationAdapter {
         wall3.set(242, 0, 14, 144);
         wall4.set(0, 0, 256, 14);
 
-        if (currentMap == 1) {
-            for (int i = humanslv1.size - 1; i >= 0; i--) {
-                Human human = humanslv1.get(i);
+        for (Human human : humans) {
+            int i = 0;
+            if (human.getMap() == currentMap) {
                 human.updateRectangle();
-
                 if (human.sprite.getY() < -human.sprite.getHeight()) {
-                    humanslv1.removeIndex(i);
+                    humans.removeIndex(i);
                 } else if (!human.touched && spiderRectangle.overlaps(human.rectangle)) {
                     human.sprite.setTexture(humanTouchedTexture);
                     mortemSound.play();
                     human.touched = true;
                 }
             }
-        } else if (currentMap == 2) {
-            for (int i = humanslv2.size - 1; i >= 0; i--) {
-                Human human = humanslv2.get(i);
-                human.updateRectangle();
+            i++;
+        }
 
-                if (human.sprite.getY() < -human.sprite.getHeight()) {
-                    humanslv2.removeIndex(i);
-                } else if (!human.touched && spiderRectangle.overlaps(human.rectangle)) {
-                    human.sprite.setTexture(humanTouchedTexture);
-                    mortemSound.play();
-                    human.touched = true;
-                }
+        for (int i = humans.size - 1; i >= 0; i--) {
+            Human human = humans.get(i);
+            human.updateRectangle();
+
+            if (human.sprite.getY() < -human.sprite.getHeight()) {
+                humans.removeIndex(i);
+            } else if (!human.touched && spiderRectangle.overlaps(human.rectangle)) {
+                human.sprite.setTexture(humanTouchedTexture);
+                mortemSound.play();
+                human.touched = true;
             }
         }
     }
@@ -177,16 +185,9 @@ public class Main extends ApplicationAdapter {
 
     public void moveSpider() {
         int direction = 0;
-        if (direction == 0) {
-            if (++spiderFrame == 5) {
-                if (++spiderMovement > 2) direction = 1;
-                spiderFrame = 0;
-            }
-        } else {
-            if (++spiderFrame == 5) {
-                if (--spiderMovement < 0) direction = 0;
-                spiderFrame = 0;
-            }
+        if (++spiderFrame == 5) {
+            if (++spiderMovement > 2) direction = 1;
+            spiderFrame = 0;
         }
     }
 
@@ -204,61 +205,43 @@ public class Main extends ApplicationAdapter {
             spriteBatch.draw(background2, 0, 0, 256, 144);
         }
         spriteBatch.draw(currentFrame, spiderSprite.getX(), spiderSprite.getY(), 16, 16);
-        if (currentMap == 1) {
-            for (Human human : humanslv1) human.sprite.draw(spriteBatch);
-        } else if (currentMap == 2) {
-            for (Human human : humanslv2) human.sprite.draw(spriteBatch);
+        for (Human human : humans){
+            if (human.getMap() == currentMap) {
+                human.sprite.draw(spriteBatch);
+            }
         }
         spriteBatch.end();
     }
 
     private void createHuman() {
-        System.out.println("Human spawned");
-
         Sprite humanSprite = new Sprite(humanTexture);
         humanSprite.setSize(16, 16);
         float x = MathUtils.random(0f, viewport.getWorldWidth() - 28 - 16) + 14;
         float y = MathUtils.random(0f, viewport.getWorldHeight() - 28 - 16) + 14;
         humanSprite.setPosition(x, y);
+        int map = currentMap;
 
-        if (currentMap == 1) {
-            humanslv1.add(new Human(humanSprite));
-        } else if (currentMap == 2) {
-            humanslv2.add(new Human(humanSprite));
-        }
+        humans.add(new Human(humanSprite));
+        humans.get(humans.size - 1).setMap(currentMap);
     }
 
     public void collisions() {
         // Reset locks before checking collisions
         lockDOWN = lockLEFT = lockUP = lockRIGHT = false;
 
-        if (currentMap == 1) {
-            for (Human human : humanslv1) {
-                if (Intersector.overlaps(spiderRectangle, human.rectangle)) {
-                    boolean xGreater = Math.abs(human.rectangle.x - spiderRectangle.x) > Math.abs(human.rectangle.y - spiderRectangle.y);
-                    if (xGreater) {
-                        if (human.rectangle.x > spiderRectangle.x) lockRIGHT = true;
-                        else lockLEFT = true;
-                    } else {
-                        if (human.rectangle.y > spiderRectangle.y) lockUP = true;
-                        else lockDOWN = true;
-                    }
-                }
-            }
-        } else if (currentMap == 2) {
-            for (Human human : humanslv2) {
-                if (Intersector.overlaps(spiderRectangle, human.rectangle)) {
-                    boolean xGreater = Math.abs(human.rectangle.x - spiderRectangle.x) > Math.abs(human.rectangle.y - spiderRectangle.y);
-                    if (xGreater) {
-                        if (human.rectangle.x > spiderRectangle.x) lockRIGHT = true;
-                        else lockLEFT = true;
-                    } else {
-                        if (human.rectangle.y > spiderRectangle.y) lockUP = true;
-                        else lockDOWN = true;
-                    }
+        for (Human human : humans) {
+            if (Intersector.overlaps(spiderRectangle, human.rectangle) && human.getMap() == currentMap) {
+                boolean xGreater = Math.abs(human.rectangle.x - spiderRectangle.x) > Math.abs(human.rectangle.y - spiderRectangle.y);
+                if (xGreater) {
+                    if (human.rectangle.x > spiderRectangle.x) lockRIGHT = true;
+                    else lockLEFT = true;
+                } else {
+                    if (human.rectangle.y > spiderRectangle.y) lockUP = true;
+                    else lockDOWN = true;
                 }
             }
         }
+
 
         if (Intersector.overlaps(spiderRectangle, wall1)) lockLEFT = true;
         if (Intersector.overlaps(spiderRectangle, wall2)) lockUP = true;
