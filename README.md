@@ -39,7 +39,7 @@ Mortem is a [libGDX](https://libgdx.com/) project free open-source inverted pixe
 - [x] Walls hitbox
 - [x] Code improvements
 - [x] Stages  
-- [ ] Code separation
+- [ ] \(In process) Code separation
 - [ ] [Camera](https://github.com/raeleus/viewports-sample-project?tab=readme-ov-file#camera-position)
 - [ ] Score
 - [ ] Death
